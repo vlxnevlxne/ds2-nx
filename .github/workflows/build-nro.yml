@@ -20,9 +20,12 @@ jobs:
           apt-get update
           apt-get install -y cmake ninja-build python3 git
 
-      - name: Install deko3d
+
+      - name: Install Switch dependencies
         run: |
-          dkp-pacman -Syu --noconfirm deko3d
+          sed -i '/^\[options\]/a XferCommand = /usr/bin/wget -U "dkp-pacman" --passive-ftp -c -O %o %u' /opt/devkitpro/pacman/etc/pacman.conf
+          dkp-pacman -S --noconfirm switch-dev deko3d
+
 
       - name: Download ds2-nx
         uses: actions/checkout@v4
