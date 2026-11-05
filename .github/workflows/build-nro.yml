@@ -1,0 +1,48 @@
+
+name: Build DS2 NRO 1.3.0
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: devkitpro/devkita64:latest
+
+    steps:
+      - name: Install build tools
+        run: |
+          apt-get update
+          apt-get install -y cmake ninja-build python3 git
+
+      - name: Install deko3d
+        run: |
+          dkp-pacman -Syu --noconfirm deko3d
+
+      - name: Download ds2-nx
+        uses: actions/checkout@v4
+        with:
+          ref: v1.3.0
+          submodules: recursive
+
+      - name: Build NRO
+        run: |
+          chmod +x deadspace2/tools/build_mac.sh
+          JOBS=2 deadspace2/tools/build_mac.sh
+
+      - name: Prepare output
+        run: |
+          mkdir -p release
+          cp deadspace2/out/sw/deadspace2.nro release/ds2-nx.nro
+
+      - name: Upload NRO
+        uses: actions/upload-artifact@v4
+        with:
+          name: ds2-nx-1.3.0
+          path: release/ds2-nx.nro
+          retention-days: 30
